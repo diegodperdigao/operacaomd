@@ -47,11 +47,11 @@
             position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; 
             -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 15%, black 85%, transparent 100%);
             mask-image: linear-gradient(to bottom, transparent 0px, black 15%, black 85%, transparent 100%);
-            opacity: 0.25;
+            opacity: 0.75;
             transition: opacity 0.5s ease;
         }
         .mosaic-container {
-            position: absolute; inset: 0; width: 110%; height: 110%;
+            position: absolute; top: -25%; left: -25%; width: 150%; height: 150%;
             transform: perspective(1000px) rotateX(15deg) rotateY(-5deg) rotateZ(2deg);
         }
         .mosaic-pattern {
@@ -927,9 +927,9 @@
             setTimeout(() => {
                 mosaicEl.style.backgroundImage = config.mosaic.startsWith('url') ? config.mosaic : `url("${config.mosaic}")`;
                 
-                // Mosaico com brilho elevado (60%)
+                // Mosaico com brilho ajustado (75%)
                 mosaicEl.style.backgroundColor = 'transparent';
-                if(mosaicWrapper) mosaicWrapper.style.opacity = '0.6';
+                if(mosaicWrapper) mosaicWrapper.style.opacity = '0.75';
 
                 mosaicEl.style.opacity = 1;
             }, 300);
