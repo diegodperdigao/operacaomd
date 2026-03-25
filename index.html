@@ -225,11 +225,14 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-4">
-                            <button onclick="switchEnvironment('Afiliados')" class="px-6 py-4 bg-white text-black font-black uppercase text-xs tracking-[0.2em] rounded-xl hover:bg-gray-200 transition-all shadow-lg flex items-center gap-2">
-                                <i data-lucide="users" class="w-4 h-4"></i> Gerenciar Afiliados
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="openHistoryModal()" class="px-5 py-4 bg-white/5 text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all border border-white/10 hover:bg-white/10 flex items-center gap-2" title="Histórico de Lançamentos">
+                                <i data-lucide="list" class="w-4 h-4"></i> Lançamentos
                             </button>
-                            <button onclick="openDailyDataModal()" class="px-6 py-4 theme-bg text-white font-black uppercase text-xs tracking-[0.2em] rounded-xl transition-all theme-shadow hover:brightness-110 flex items-center gap-2">
+                            <button onclick="switchEnvironment('Afiliados')" class="px-5 py-4 bg-white text-black font-black uppercase text-[10px] tracking-[0.2em] rounded-xl hover:bg-gray-200 transition-all shadow-lg flex items-center gap-2">
+                                <i data-lucide="users" class="w-4 h-4"></i> Gerenciar
+                            </button>
+                            <button onclick="openDailyDataModal()" class="px-5 py-4 theme-bg text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all theme-shadow hover:brightness-110 flex items-center gap-2">
                                 <i data-lucide="plus-circle" class="w-4 h-4"></i> Lançar Dados
                             </button>
                         </div>
@@ -417,8 +420,8 @@
             <p class="text-[10px] text-gray-600 uppercase tracking-[0.3em] font-bold mb-2">Confidencial &copy; 2026 3C Gaming BizDev</p>
             <p class="text-[8px] text-gray-700 uppercase tracking-[0.1em] italic opacity-40">Operação MD System v7.0 - Enterprise Edition</p>
             
-            <button onclick="openAuditModal()" class="absolute right-6 bottom-6 md:right-10 md:bottom-10 p-3 text-gray-700 hover:text-gray-400 hover:bg-white/5 rounded-full transition-all" title="Central de Edições (Histórico)">
-                <i data-lucide="history" class="w-5 h-5"></i>
+            <button onclick="openAuditModal()" class="absolute right-6 bottom-6 md:right-10 md:bottom-10 p-3 text-gray-700 hover:text-gray-400 hover:bg-white/5 rounded-full transition-all" title="Central de Edições (Log Geral)">
+                <i data-lucide="activity" class="w-5 h-5"></i>
             </button>
         </footer>
     </div>
@@ -438,7 +441,12 @@
                 </div>
                 <div>
                     <h2 id="profile-name" class="text-3xl font-black uppercase tracking-tighter text-white">NOME DO AFILIADO</h2>
-                    <p id="profile-date" class="text-xs text-gray-400 font-mono mt-1">Parceiro desde: ---</p>
+                    <div class="flex items-center gap-4 mt-2">
+                        <p id="profile-date" class="text-xs text-gray-400 font-mono">Parceiro desde: ---</p>
+                        <button onclick="deleteAffiliate(window.currentProfileAffId)" class="text-red-500/80 hover:text-red-400 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 transition-colors bg-red-500/10 px-2 py-1 rounded">
+                            <i data-lucide="trash-2" class="w-3 h-3"></i> Excluir
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -517,12 +525,42 @@
         <div class="glass-card w-full max-w-xl p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl relative flex flex-col max-h-[90vh]">
             <button onclick="closeModals()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
             <h2 class="text-xl font-black uppercase tracking-widest mb-6 border-b border-white/10 pb-4 flex items-center gap-2 shrink-0">
-                <i data-lucide="history" class="w-5 h-5 text-gray-400"></i> Central de Edições
+                <i data-lucide="activity" class="w-5 h-5 text-gray-400"></i> Central de Edições
             </h2>
             <p class="text-[10px] text-gray-500 mb-4 italic shrink-0">Histórico de alterações na operação (Últimas 100 ações).</p>
             
             <div id="audit-list" class="space-y-3 overflow-y-auto custom-scrollbar pr-2 flex-grow">
                 <!-- Gerado via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: HISTÓRICO DE LANÇAMENTOS (DELETE) -->
+    <div id="modal-history" class="fixed inset-0 z-[250] flex items-center justify-center bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity p-4 sm:p-6">
+        <div class="glass-card w-full max-w-5xl p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl relative flex flex-col max-h-[90vh]">
+            <button onclick="closeModals()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <h2 class="text-xl font-black uppercase tracking-widest mb-6 border-b border-white/10 pb-4 flex items-center gap-2 shrink-0">
+                <i data-lucide="list" class="w-5 h-5 theme-text"></i> Histórico de Lançamentos
+            </h2>
+            <p class="text-[10px] text-gray-500 mb-4 italic shrink-0">Caso encontre algum lançamento com valores errados, basta apagar e lançar novamente.</p>
+            
+            <div class="overflow-x-auto custom-scrollbar flex-grow bg-black/30 rounded-2xl border border-white/5">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white/5 text-[10px] uppercase tracking-widest text-gray-400">
+                            <th class="px-5 py-4 font-bold">Data</th>
+                            <th class="px-5 py-4 font-bold">Marca</th>
+                            <th class="px-5 py-4 font-bold">Afiliado</th>
+                            <th class="px-5 py-4 font-bold text-center">FTD / QFTD</th>
+                            <th class="px-5 py-4 font-bold text-right">Depósitos</th>
+                            <th class="px-5 py-4 font-bold text-right">Net Rev</th>
+                            <th class="px-5 py-4 font-bold text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body" class="text-xs">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -674,16 +712,16 @@
                 <div class="grid grid-cols-2 gap-6 pt-4 border-t border-white/5">
                     <div>
                         <label class="form-label !ml-0">FTDs (Cadastros)</label>
-                        <input type="number" id="daily-ftd" value="0" class="edit-mode-input mt-1 w-full py-3 font-mono">
+                        <input type="number" id="daily-ftd" placeholder="0" class="edit-mode-input mt-1 w-full py-3 font-mono">
                     </div>
                     <div id="qftd-container" class="flex flex-col gap-2"></div>
                     <div>
                         <label class="form-label !ml-0">Total Depósitos (R$)</label>
-                        <input type="number" id="daily-dep" value="0" step="0.01" class="edit-mode-input mt-1 w-full py-3 font-mono">
+                        <input type="text" id="daily-dep" placeholder="Ex: 2.340,50" class="edit-mode-input mt-1 w-full py-3 font-mono">
                     </div>
                     <div>
                         <label class="form-label !ml-0">Net Revenue (R$)</label>
-                        <input type="number" id="daily-rev" value="0" step="0.01" class="edit-mode-input mt-1 w-full py-3 font-mono">
+                        <input type="text" id="daily-rev" placeholder="Ex: 1.500,00" class="edit-mode-input mt-1 w-full py-3 font-mono">
                     </div>
                 </div>
 
@@ -987,6 +1025,7 @@
                     document.getElementById('table-title').innerHTML = `<i data-lucide="bar-chart-2" class="w-4 h-4 theme-text"></i> Performance na ${env}`;
                 }
 
+                // Garante que o dropdown escondido na DOM também é populado
                 const brandOptions = getBrandList().map(b => `<option value="${b}">${b}</option>`).join('');
                 document.getElementById('daily-brand').innerHTML = brandOptions;
 
@@ -1114,10 +1153,10 @@
 
                     let rankIcon = '';
                     if (currentEnv === 'Visão Geral') {
-                        if(index === 0) rankIcon = '<span class="text-xl" title="Top 1">🥇</span>';
-                        else if(index === 1) rankIcon = '<span class="text-xl" title="Top 2">🥈</span>';
-                        else if(index === 2) rankIcon = '<span class="text-xl" title="Top 3">🥉</span>';
-                        else rankIcon = `<span class="text-xs font-bold text-gray-500 w-6 inline-block text-center">#${index+1}</span>`;
+                        if(index === 0) rankIcon = '<div class="w-8 flex justify-center shrink-0"><span class="text-2xl" title="Top 1">🥇</span></div>';
+                        else if(index === 1) rankIcon = '<div class="w-8 flex justify-center shrink-0"><span class="text-2xl" title="Top 2">🥈</span></div>';
+                        else if(index === 2) rankIcon = '<div class="w-8 flex justify-center shrink-0"><span class="text-2xl" title="Top 3">🥉</span></div>';
+                        else rankIcon = `<div class="w-8 flex justify-center shrink-0"><span class="text-sm font-bold text-gray-500">#${index+1}</span></div>`;
                     } else {
                          rankIcon = `<div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-sm text-gray-400 shrink-0"><i data-lucide="user" class="w-5 h-5"></i></div>`;
                     }
@@ -1854,16 +1893,19 @@
 
         window.openDailyDataModal = () => {
             if (dataStore.affiliates.length === 0) { alert("Cadastre pelo menos um afiliado primeiro."); return; }
+            
+            // Popula sempre as opções de marcas para evitar vazios
             const brandSelect = document.getElementById('daily-brand');
+            brandSelect.innerHTML = getBrandList().map(b => `<option value="${b}">${b}</option>`).join('');
             
             if (currentEnv === 'Visão Geral' || currentEnv === 'Fechamento' || currentEnv === 'Afiliados') brandSelect.value = getBrandList()[0]; 
             else brandSelect.value = currentEnv;
 
             updateDailyModalFields(); 
             document.getElementById('daily-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('daily-ftd').value = '0';
-            document.getElementById('daily-dep').value = '0';
-            document.getElementById('daily-rev').value = '0';
+            document.getElementById('daily-ftd').value = '';
+            document.getElementById('daily-dep').value = '';
+            document.getElementById('daily-rev').value = '';
 
             const modal = document.getElementById('modal-daily');
             modal.classList.remove('hidden');
@@ -1874,9 +1916,12 @@
             const selectedBrand = document.getElementById('daily-brand').value;
             const affSelect = document.getElementById('daily-affiliate');
             
-            const eligibleAffiliates = dataStore.affiliates.filter(a => a.deals[selectedBrand] !== undefined);
-            if(eligibleAffiliates.length === 0) affSelect.innerHTML = '<option value="">Nenhum afiliado configurado para esta marca</option>';
-            else affSelect.innerHTML = eligibleAffiliates.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+            // Exibir todos os afiliados para que nunca trave
+            if(dataStore.affiliates.length === 0) {
+                affSelect.innerHTML = '<option value="">Nenhum afiliado cadastrado</option>';
+            } else {
+                affSelect.innerHTML = dataStore.affiliates.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+            }
 
             const brandData = dataStore.brands[selectedBrand];
             const qftdContainer = document.getElementById('qftd-container');
@@ -1885,14 +1930,14 @@
                 qftdContainer.innerHTML = brandData.levels.map(l => `
                     <div>
                         <label class="form-label !ml-0">${l.name} (QFTDs)</label>
-                        <input type="number" id="daily-qftd-${l.key}" value="0" class="edit-mode-input mt-1 w-full py-2 font-mono theme-text text-xs">
+                        <input type="number" id="daily-qftd-${l.key}" placeholder="0" class="edit-mode-input mt-1 w-full py-3 font-mono theme-text">
                     </div>
                 `).join('');
             } else {
                 qftdContainer.innerHTML = `
                     <div>
                         <label class="form-label !ml-0">QFTDs (Aptos CPA)</label>
-                        <input type="number" id="daily-qftd-standard" value="0" class="edit-mode-input mt-1 w-full py-3 font-mono theme-text">
+                        <input type="number" id="daily-qftd-standard" placeholder="0" class="edit-mode-input mt-1 w-full py-3 font-mono theme-text">
                     </div>
                 `;
             }
@@ -1905,17 +1950,44 @@
             });
         };
 
+        // Inteligência para entender dinheiro BR perfeitamente (Ex: 2.340,50 ou 2340 ou 2.340)
+        window.parseMoney = (str) => {
+            if (!str) return 0;
+            let val = str.toString().trim();
+            val = val.replace(/[^0-9\,\.\-]/g, ''); // Limpa caracteres estranhos mantendo apenas numeros, pontos e virgulas
+            
+            if (val.includes(',') && val.includes('.')) {
+                // Formato completo: 2.340,50
+                val = val.replace(/\./g, '').replace(',', '.');
+            } else if (val.includes(',')) {
+                // Formato simples: 2340,50
+                val = val.replace(',', '.');
+            } else if (val.includes('.')) {
+                // Pode ser 2340.50 (americano) ou 2.340 (milhar brasileiro sem centavo)
+                const parts = val.split('.');
+                // Se tiver exatamente 3 digitos na ultima parte e tiver mais de uma parte, é provavel que seja milhar (2.340)
+                if (parts[parts.length - 1].length === 3 && parts.length > 1) {
+                    val = val.replace(/\./g, '');
+                }
+            }
+            return parseFloat(val) || 0;
+        };
+
         window.saveDailyData = () => {
             const brand = document.getElementById('daily-brand').value;
             const affiliateId = document.getElementById('daily-affiliate').value;
             const date = document.getElementById('daily-date').value;
             const ftd = parseInt(document.getElementById('daily-ftd').value) || 0;
-            const deposits = parseFloat(document.getElementById('daily-dep').value) || 0;
-            const netRev = parseFloat(document.getElementById('daily-rev').value) || 0;
+            const deposits = parseMoney(document.getElementById('daily-dep').value);
+            const netRev = parseMoney(document.getElementById('daily-rev').value);
 
-            if(!affiliateId || !date) { alert("Selecione um afiliado e confira se a data foi informada."); return; }
+            if(!brand) { alert("Erro de sistema: Marca não foi selecionada."); return; }
+            if(!affiliateId) { alert("Atenção: Selecione o afiliado. Se não houver, cadastre um primeiro!"); return; }
+            if(!date) { alert("Atenção: A data de referência é obrigatória."); return; }
 
             const brandData = dataStore.brands[brand];
+            if(!brandData) return;
+
             let qftdData;
 
             if (brandData.type === 'tiered') {
@@ -1942,6 +2014,63 @@
             closeModals();
             if(currentEnv === 'Afiliados') renderAffiliatesCRM();
             else if(currentEnv !== 'Fechamento') renderDashboard();
+        };
+
+        window.openHistoryModal = () => {
+            renderHistoryTable();
+            const modal = document.getElementById('modal-history');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        };
+
+        window.renderHistoryTable = () => {
+            const tbody = document.getElementById('history-table-body');
+            const sortedReports = [...dataStore.dailyReports].sort((a, b) => b.insertedAt - a.insertedAt);
+
+            if (sortedReports.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-5 py-12 text-center text-gray-500 italic">Nenhum lançamento foi efetuado na base.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = sortedReports.map(r => {
+                const aff = dataStore.affiliates.find(a => a.id === r.affiliateId);
+                const affName = aff ? aff.name : '<span class="text-red-400 italic font-bold">Afiliado Excluído</span>';
+                
+                let qTotal = 0;
+                if(typeof r.qftd === 'object' && r.qftd !== null) { qTotal = (r.qftd.l1||0) + (r.qftd.l2||0) + (r.qftd.l3||0); }
+                else { qTotal = r.qftd || 0; }
+                const color = getBrandConfig(r.brand)?.color || '#fff';
+
+                return `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="px-5 py-4 font-mono text-gray-400">${r.date.split('-').reverse().join('/')}</td>
+                        <td class="px-5 py-4 font-bold uppercase tracking-widest text-[10px]" style="color: ${color}">${r.brand}</td>
+                        <td class="px-5 py-4 text-white font-bold">${affName}</td>
+                        <td class="px-5 py-4 text-center font-mono text-gray-400">${r.ftd} / <span class="text-pink-400 font-bold">${qTotal}</span></td>
+                        <td class="px-5 py-4 text-right font-mono text-gray-300">${formatCurrency(r.deposits)}</td>
+                        <td class="px-5 py-4 text-right font-mono text-gray-300">${formatCurrency(r.netRev)}</td>
+                        <td class="px-5 py-4 text-center">
+                            <button onclick="deleteReport('${r.id}')" class="p-2 text-gray-500 hover:text-red-500 transition-colors rounded-lg hover:bg-red-500/10" title="Excluir Lançamento Permanente">
+                                <i data-lucide="trash-2" class="w-4 h-4 mx-auto"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        };
+
+        window.deleteReport = (id) => {
+            if(confirm("Tem certeza que deseja excluir este lançamento? Todos os resultados da dashboard vão ser recalculados na hora.")) {
+                dataStore.dailyReports = dataStore.dailyReports.filter(r => r.id !== id);
+                saveData();
+                logAction('Lançamento Removido', 'Um resultado diário foi deletado da base de dados.');
+                
+                renderHistoryTable(); // Atualiza a tabela aberta
+                
+                if (currentEnv === 'Afiliados') renderAffiliatesCRM();
+                else if (currentEnv !== 'Fechamento') renderDashboard();
+            }
         };
 
         window.exportCSV = () => {
