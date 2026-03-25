@@ -722,9 +722,9 @@
         // --- DADOS DINÂMICOS ---
         let dataStore = {
             brands: {
-                'Vupi': { color: '#6901c7', type: 'standard', cpa: 50, rs: 20, logo: https://i.ibb.co/mmzH7QV/logovupi.png },
-                'Novibet': { color: '#243248', type: 'tiered', levels: [{key:'l1',name:'Nível 1',cpa:180,baseline:30},{key:'l2',name:'Nível 2',cpa:100,baseline:300},{key:'l3',name:'Nível 3',cpa:100,baseline:1200}], rs: 30, logo: https://i.ibb.co/1fCKT0kq/logonovibet.png },
-                'Superbet': { color: '#e80104', type: 'standard', cpa: 60, rs: 25, logo: https://i.ibb.co/qL0KMg8k/logosuperbet.webp }
+                'Vupi': { color: '#6901c7', type: 'standard', cpa: 50, rs: 20, logo: 'https://i.ibb.co/PGG7sNnz/Screenshot-2026-03-25-at-15-28-52.png' },
+                'Novibet': { color: '#243248', type: 'tiered', levels: [{key:'l1',name:'Nível 1',cpa:180,baseline:30},{key:'l2',name:'Nível 2',cpa:100,baseline:300},{key:'l3',name:'Nível 3',cpa:100,baseline:1200}], rs: 30, logo: 'https://i.ibb.co/1fCKT0kq/logonovibet.png' },
+                'Superbet': { color: '#e80104', type: 'standard', cpa: 60, rs: 25, logo: 'https://i.ibb.co/qL0KMg8k/logosuperbet.webp' }
             },
             affiliates: [], 
             dailyReports: [],
@@ -733,7 +733,7 @@
 
         let currentEnv = 'Visão Geral';
         const ACCESS_PASSWORD = "3cMD123@"; 
-        const STORAGE_KEY = 'igaming3c_data_v7'; 
+        const STORAGE_KEY = 'igaming3c_data_v8'; 
 
         // --- SISTEMA DE AUDITORIA (LOG) ---
         window.logAction = (action, details) => {
@@ -784,12 +784,16 @@
             const b = parseInt(hex.substring(4, 6), 16) || 255;
             const rgb = `${r}, ${g}, ${b}`;
 
+            const mosaicBg = brandData.logo 
+                ? `url('${brandData.logo}')` 
+                : `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><text x='50%' y='50%' font-family='Montserrat, sans-serif' font-weight='900' font-size='28' fill='rgba(${rgb},0.15)' text-anchor='middle' dominant-baseline='middle' transform='rotate(-25, 100, 100)'>${brandName.toUpperCase()}</text></svg>`;
+
             return {
                 color: brandData.color, colorRGB: rgb,
                 grad1: `rgba(${rgb}, 0.12)`, grad2: `rgba(${rgb}, 0.05)`,
                 title: brandName.toUpperCase(), subtitle: '', 
                 logo: brandData.logo || '', 
-                mosaic: `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><text x='50%' y='50%' font-family='Montserrat, sans-serif' font-weight='900' font-size='28' fill='rgba(${rgb},0.15)' text-anchor='middle' dominant-baseline='middle' transform='rotate(-25, 100, 100)'>${brandName.toUpperCase()}</text></svg>`,
+                mosaic: mosaicBg,
                 deal: brandData
             };
         };
@@ -822,7 +826,17 @@
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
-                    dataStore.brands = parsed.brands || dataStore.brands; 
+                    
+                    // Preserva os dados salvos, mas atualiza sempre as logos para a versão mais recente do código
+                    if (parsed.brands) {
+                        Object.keys(parsed.brands).forEach(b => {
+                            if(dataStore.brands[b]) {
+                                parsed.brands[b].logo = dataStore.brands[b].logo;
+                            }
+                        });
+                        dataStore.brands = parsed.brands;
+                    }
+                    
                     dataStore.affiliates = parsed.affiliates || [];
                     dataStore.dailyReports = parsed.dailyReports || [];
                     dataStore.auditLogs = parsed.auditLogs || [];
@@ -907,14 +921,20 @@
             const logoEl = document.getElementById('nav-logo');
             logoEl.src = config.logo ? config.logo : BASE_CONFIG['Visão Geral'].logo;
             
+            const mosaicWrapper = document.querySelector('.mosaic-wrapper');
             const mosaicEl = document.getElementById('dynamic-mosaic');
             mosaicEl.style.opacity = 0;
             setTimeout(() => {
                 mosaicEl.style.backgroundImage = config.mosaic.startsWith('url') ? config.mosaic : `url("${config.mosaic}")`;
+                
+                // Mosaico com brilho elevado (60%)
+                mosaicEl.style.backgroundColor = 'transparent';
+                if(mosaicWrapper) mosaicWrapper.style.opacity = '0.6';
+
                 mosaicEl.style.opacity = 1;
             }, 300);
 
-            const allTabs = ['Visão Geral', ...getBrandList(), 'Fechamento'];
+            const allTabs = ['Visão Geral', 'Afiliados', ...getBrandList(), 'Fechamento'];
             allTabs.forEach(tab => {
                 const tabEl = document.getElementById(`tab-${tab.replace(/\s+/g, '')}`);
                 if(tabEl) {
