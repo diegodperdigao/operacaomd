@@ -138,10 +138,10 @@
         <nav class="fixed w-full z-50 top-0 glass-header">
             <div class="absolute top-0 left-0 right-0 h-[2px] theme-bg opacity-30 transition-colors duration-500"></div>
             <div class="max-w-[1400px] mx-auto px-8 py-3 flex justify-between items-center text-white">
-                <div class="flex items-center gap-5">
-                    <img id="nav-logo" src="https://i.ibb.co/TDvNpKbv/285535120-111261434935979-5560566145880188190-n.jpg" alt="Logo" class="h-8 w-8 rounded-full border border-white/10 p-0.5 shadow-2xl object-cover transition-all duration-500">
+                <div class="flex items-center gap-5 cursor-pointer group" onclick="switchEnvironment('Visão Geral')" title="Ir para Visão Geral">
+                    <img id="nav-logo" src="https://i.ibb.co/TDvNpKbv/285535120-111261434935979-5560566145880188190-n.jpg" alt="Logo" class="h-8 w-8 rounded-full border border-white/10 p-0.5 shadow-2xl object-cover transition-all duration-500 group-hover:scale-110">
                     <div class="flex flex-col">
-                        <span class="text-[0.65rem] tracking-[0.4em] uppercase font-black leading-tight">OPERAÇÃO MD</span>
+                        <span class="text-[0.65rem] tracking-[0.4em] uppercase font-black leading-tight group-hover:text-pink-400 transition-colors">OPERAÇÃO MD</span>
                         <span class="text-[0.45rem] tracking-[0.2em] text-gray-500 font-bold italic opacity-80 uppercase">3C_Execution_Control</span>
                     </div>
                 </div>
@@ -226,8 +226,8 @@
                         </div>
 
                         <div class="flex gap-4">
-                            <button onclick="openAffiliateModal()" class="px-6 py-4 bg-white text-black font-black uppercase text-xs tracking-[0.2em] rounded-xl hover:bg-gray-200 transition-all shadow-lg flex items-center gap-2">
-                                <i data-lucide="user-plus" class="w-4 h-4"></i> Gerenciar Afiliados
+                            <button onclick="switchEnvironment('Afiliados')" class="px-6 py-4 bg-white text-black font-black uppercase text-xs tracking-[0.2em] rounded-xl hover:bg-gray-200 transition-all shadow-lg flex items-center gap-2">
+                                <i data-lucide="users" class="w-4 h-4"></i> Gerenciar Afiliados
                             </button>
                             <button onclick="openDailyDataModal()" class="px-6 py-4 theme-bg text-white font-black uppercase text-xs tracking-[0.2em] rounded-xl transition-all theme-shadow hover:brightness-110 flex items-center gap-2">
                                 <i data-lucide="plus-circle" class="w-4 h-4"></i> Lançar Dados
@@ -1186,8 +1186,13 @@
                 });
 
                 html += `
-                    <div class="glass-card p-6 rounded-3xl border border-white/5 hover:border-pink-500/50 card-hover" onclick="openAffiliateProfile('${aff.id}')">
-                        <div class="flex items-start justify-between mb-4">
+                    <div class="glass-card p-6 rounded-3xl border border-white/5 hover:border-pink-500/50 card-hover relative" onclick="openAffiliateProfile('${aff.id}')">
+                        <div class="absolute top-4 right-4 z-10">
+                            <button onclick="event.stopPropagation(); deleteAffiliate('${aff.id}')" class="p-2 text-gray-500 hover:text-red-500 transition-colors rounded-full hover:bg-red-500/10" title="Excluir Afiliado">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-start justify-between mb-4 pr-8">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-full bg-pink-500/10 flex items-center justify-center border border-pink-500/20 text-pink-400">
                                     <i data-lucide="user" class="w-6 h-6"></i>
@@ -1206,7 +1211,7 @@
                                 <p class="text-[10px] uppercase font-bold tracking-widest text-gray-500">Total QFTDs (All Time)</p>
                                 <p class="text-2xl font-mono font-black text-white mt-1">${totalQftd}</p>
                             </div>
-                            <button class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-pink-500 hover:text-white transition-colors">
+                            <button class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-pink-500 hover:text-white transition-colors" title="Ver Perfil">
                                 <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -1836,7 +1841,14 @@
                 dataStore.dailyReports = dataStore.dailyReports.filter(r => r.affiliateId !== id);
                 saveData();
                 if(aff) logAction('Afiliado Deletado', `Parceiro removido: ${aff.name}.`);
-                renderDashboard();
+                
+                closeModals();
+                
+                if (currentEnv === 'Afiliados') {
+                    renderAffiliatesCRM();
+                } else if (currentEnv !== 'Fechamento') {
+                    renderDashboard();
+                }
             }
         };
 
